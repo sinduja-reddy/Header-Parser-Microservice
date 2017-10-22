@@ -37,7 +37,27 @@ app.route('/')
     .get(function(req, res) {
 		  res.sendFile(process.cwd() + '/views/index.html');
     })
-
+app.get('/api/whoami', function(req,res){
+  let parsedData = parseRequest(req);
+  res.status(200).json(parsedData);
+})
+function parseRequest(request){
+  return {
+  ipaddress: getIP(request.connection.remoteAddress),
+  language : getLanguage(request.headers["accept-language"]),
+  software: getOS(request.headers["user-agent"])
+         };
+}
+function getIP(ip){
+  let ipv6= ip.indexOf(':') >= 0;
+  return ipv6 ? ip.split(':').reverse()[0] : ip ;
+}
+function getLanguage(lang){
+  return lang.split(',')[0].trim();
+}
+function getOS(os){
+let osInfo = os.split(/[\(\)]/)[1]; 
+  return osInfo.trim();}
 // Respond not found to all the wrong routes
 app.use(function(req, res, next){
   res.status(404);
